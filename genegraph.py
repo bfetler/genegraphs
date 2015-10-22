@@ -41,13 +41,13 @@ class GeneGraph:
 #    adj = []  # adjacency list of lists
     
     def __init__(self, v, nam=''):
+        '''create graph w/ number of vertices v'''
         if v < 0:
             raise TypeError, 'cannot be less than zero'
         self.vn = v
         self.en = 0
         self.name = nam
         self.adj = []
-#        self.adj = [[]] * v
         for i in range(v):
             self.adj.append([])
 
@@ -56,12 +56,12 @@ class GeneGraph:
             raise TypeError, 'invalid vertex number'
     
     def addEdge(self, v, w):
-#        self.validateVertex(self, v)
+        '''add edge to graph'''
         self.validateVertex(v)
         self.validateVertex(w)
         self.en += 1
         self.adj[v].append(w)
-        self.adj[w].append(v)  # digraph or not
+        self.adj[w].append(v)  # comment out if not digraph
         
     def degree(self, v):
         self.validateVertex(v)
@@ -96,7 +96,7 @@ class ConnComp:    # connected components
                 self.count += 1
     
     def dfs(self, gGraph, v):
-        '''depth first search'''
+        '''depth first search, recursive loop'''
 #        print 'called dfs'
         self.marked[v] = True
         self.id[v] = self.count
@@ -115,7 +115,7 @@ class ConnComp:    # connected components
             print i, ':', a, ',',
         print ''
 
-class ConnComp2:    # connected components
+class ConnComp2:    # connected components, 2nd algorithm
     '''connected components of a gene graph'''
     def __init__(self, gGraph):
         self.count = 0
@@ -136,7 +136,7 @@ class ConnComp2:    # connected components
 # dfs() returns node or nodes?
     
     def dfs2(self, gGraph, vlist):
-        '''depth first search'''
+        '''depth first search, non-recursive'''
 #        print 'called dfs'
         wlist = []
         for v in vlist:
@@ -162,7 +162,7 @@ class ConnComp2:    # connected components
     def printSummary(self):
         print self.name, 'connComp count', self.count
 
-def readfile(filename):
+def readDnaFile(filename):
     '''read dna file, return string'''
     f = open(filename,'r')
     s1 = f.readline()
@@ -173,6 +173,7 @@ def rmnull(x):
     return x <> ''
 
 def getsz(r1):
+    '''get size'''
     sz = 0
     for r in r1:
         for s in r.split():
@@ -274,8 +275,8 @@ compAB.printConn()
 rx = re.compile('[()\n]')
 
 print 'starting gene read'
-# s1, s2 = readfile('/Users/bfetler/Downloads/data_gene1.txt')
-s1, s2 = readfile('/Users/bfetler/Downloads/dataset_288_4.txt')
+# s1, s2 = readDnaFile('/Users/bfetler/Downloads/data_gene1.txt')
+s1, s2 = readDnaFile('/Users/bfetler/Downloads/dataset_288_4.txt')
 r1 = filter(rmnull, rx.split(s1))
 r2 = filter(rmnull, rx.split(s2))
 sz1=getsz(r1)
@@ -292,14 +293,15 @@ addEdges(geneC, r2)
 compC = ConnComp2(geneC)  # max recursion depth exceeded
 compC.printSummary()
 
-etime = datetime.datetime.now()
-print 'end time', etime
-print 'time delta', etime-dtime
-print 'long loop'
-cc = 0
-for c in [0,1000]:
-    s1, s2 = readfile('/Users/bfetler/Downloads/dataset_288_4.txt')
-    cc += 1
-ltime = datetime.datetime.now()
-print 'loop time', ltime-etime
+# timing test
+#etime = datetime.datetime.now()
+#print 'end time', etime
+#print 'time delta', etime-dtime
+#print 'long loop'
+#cc = 0
+#for c in [0,1000]:
+#    s1, s2 = readDnaFile('/Users/bfetler/Downloads/dataset_288_4.txt')
+#    cc += 1
+#ltime = datetime.datetime.now()
+#print 'loop time', ltime-etime
 print 'python version', sys.version
