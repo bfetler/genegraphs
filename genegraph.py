@@ -76,6 +76,7 @@ class GeneGraph:
         
 class ConnComp:    # connected components
     '''connected components of a gene graph'''
+    # may exceed max recursion depth
     def __init__(self, gGraph):
         self.count = 0
         self.name = gGraph.name
@@ -83,21 +84,13 @@ class ConnComp:    # connected components
         self.marked = [False] * sz
         self.id = [-1] * sz
         self.size = [0] * sz
-#        self.marked = []
-#        self.id = []
-#        self.size = []
-#        for v in range(sz):
-#            self.marked.append(False)
-#            self.id.append(-1)
-#            self.size.append(0)
         for v in range(sz):
             if (not self.marked[v]):
                 self.dfs(gGraph, v)
                 self.count += 1
     
-    def dfs(self, gGraph, v):
+    def dfs(self, gGraph, v):    # call stack too deep
         '''depth first search, recursive loop'''
-#        print 'called dfs'
         self.marked[v] = True
         self.id[v] = self.count
         self.size[self.count] += 1
@@ -106,10 +99,10 @@ class ConnComp:    # connected components
                 self.dfs(gGraph, w)
     
     def printConn(self):
-        print self.name, 'connComp count', self.count,' marked'
+        print self.name, 'connected components count', self.count
         for i, a in enumerate(self.marked):
-            print i, ':', a, ',',
-        print ''
+            if (a == False):
+                print 'unmarked', i, ':', a
         print 'connComp id',
         for i, a in enumerate(self.id):
             print i, ':', a, ',',
@@ -124,20 +117,22 @@ class ConnComp2:    # connected components, 2nd algorithm
         self.marked = [False] * sz
         self.id = [-1] * sz
         self.size = [0] * sz
+        self.lists = []
         for v in range(sz):
             if (not self.marked[v]):
                 vlist = [v]
+                self.lists.append(vlist[0])
                 while (vlist != []):
 #                    print 'init processing', vlist, 'count', self.count
                     vlist = self.dfs2(gGraph, vlist)
+#                self.lists.append(vlist[-1])
                 self.count += 1
 
 # how to do dfs() without recursion?  while loop, for loop?
-# dfs() returns node or nodes?
+# dfs2() returns node or nodes?  is this correct?
     
     def dfs2(self, gGraph, vlist):
         '''depth first search, non-recursive'''
-#        print 'called dfs'
         wlist = []
         for v in vlist:
             self.marked[v] = True
@@ -149,10 +144,10 @@ class ConnComp2:    # connected components, 2nd algorithm
         return wlist
     
     def printConn(self):
-        print self.name, 'connComp count', self.count,' marked'
+        print self.name, 'connComp count', self.count
         for i, a in enumerate(self.marked):
-            print i, ':', a, ',',
-        print ''
+            if (a == False):
+                print 'unmarked', i, ':', a
         print 'connComp id',
         for i, a in enumerate(self.id):
             print i, ':', a, ',',
@@ -160,59 +155,70 @@ class ConnComp2:    # connected components, 2nd algorithm
         print self.name, 'connComp count', self.count
     
     def printSummary(self):
-        print self.name, 'connComp count', self.count
+        print self.name, 'connected components count', self.count, ';', self.lists
 
-def readDnaFile(filename):
-    '''read dna file, return string'''
+def processDnaFile(geneName, filename):
+    '''process DNA file'''
+    # use nested methods
+    
+    rx = re.compile('[()\n]')  # split input file by regex
+    
+    def rmnull(x):
+        return x <> ''
+        
+    def getsz(r1):
+        '''get size'''
+        sz = 0
+        for r in r1:
+            for s in r.split():
+                sz += 1
+        return sz
+        
+    def addEdges(gene, ra):
+        for r in ra:
+            rs = r.split()
+            q1 = []
+            q2 = []
+            for s in rs:
+                ii = int(s)
+                if ii > 0:
+                    d1 = ii * 2 - 2
+                    d2 = ii * 2 - 1
+                else:
+                    d1 = -ii * 2 - 1
+                    d2 = -ii * 2 - 2
+                q1.append(d1)
+                q2.append(d2)
+            q0 = q1.pop(0)  # rotate q1[0] from start to end
+            q1.append(q0)
+#            q0 = q2.pop(0)  # rotate q2[0] from start to end
+#            q2.append(q0)
+            for qq in zip(q1, q2):
+                gene.addEdge(qq[1], qq[0])    
+    
+    print 'start reading', geneName
     f = open(filename,'r')
     s1 = f.readline()
     s2 = f.readline()
-    return s1, s2
+    r1 = filter(rmnull, rx.split(s1))
+    r2 = filter(rmnull, rx.split(s2))
+    sz1 = getsz(r1)
+    sz2 = getsz(r2)
+    print 'dna sizes:', sz1, sz2
     
-def rmnull(x):
-    return x <> ''
-
-def getsz(r1):
-    '''get size'''
-    sz = 0
-    for r in r1:
-        for s in r.split():
-            sz += 1
-    return sz
-
-def addEdges(gene, ra):
-    for r in ra:
-        rs = r.split()
-        q1 = []
-        q2 = []
-        for s in rs:
-            ii = int(s)
-            if ii > 0:
-                d1 = ii * 2 - 2
-                d2 = ii * 2 - 1
-            else:
-                d1 = -ii * 2 - 1
-                d2 = -ii * 2 - 2
-            q1.append(d1)
-            q2.append(d2)
-        q0 = q1.pop(0)  # rotate q1[0] from start to end
-        q1.append(q0)
-#        q0 = q2.pop(0)  # rotate q2[0] from start to end
-#        q2.append(q0)
-#        for qq in zip(q1, q2):
-#            print qq[0], qq[1], ';',
-#        print ''
-        
-        for qq in zip(q1, q2):
-            gene.addEdge(qq[1], qq[0])
+    gene = GeneGraph(2 * sz2, geneName)
+    addEdges(gene, r1)
+    addEdges(gene, r2)
+    return gene
 
 
 dtime = datetime.datetime.now()
-print 'start time', dtime
+print 'python version', sys.version, 'start time', dtime
 
+print 'geneA: one DNA strand, six linear blocks'
 geneA = GeneGraph(12, 'geneA')
 # add connections
-geneA.addEdge(1, 2)  # index-1
+geneA.addEdge(1, 2)  # index+1 mod 12
 geneA.addEdge(3, 4)
 geneA.addEdge(5, 6)
 geneA.addEdge(7, 8)
@@ -229,6 +235,7 @@ geneA.printConnections()
 compA = ConnComp(geneA)
 compA.printConn()
 
+print 'geneB: 2 DNA strands length 4 & 2, construct as one'
 geneB = GeneGraph(12, 'geneB')
 # add connections
 geneB.addEdge(1, 5)
@@ -248,7 +255,7 @@ geneB.printConnections()
 compB = ConnComp(geneB)
 compB.printConn()
 
-# breakpoint graph of geneA, geneB
+print 'breakpoint graph of geneA, geneB'
 geneAB = GeneGraph(12, 'geneAB')
 # add geneA connections
 geneAB.addEdge(1, 2)
@@ -268,40 +275,22 @@ geneAB.printConnections()
 compAB = ConnComp(geneAB)
 compAB.printConn()
 
-# how to do this from file read?
-# e.g. file 1st line   (+1 -3 -6 -5)(+2 -4)
-# compare with 2nd line (+1 +2 +3 +4 +5 +6)
+# Above is a very manual process.  
+# How to read and process file?
+#   e.g. file 1st line (+1 -3 -6 -5)(+2 -4)
+#        file 2nd line (+1 +2 +3 +4 +5 +6)
+# see processDnaFile()
 
-rx = re.compile('[()\n]')
-
-print 'starting gene read'
-# s1, s2 = readDnaFile('/Users/bfetler/Downloads/data_gene1.txt')
-s1, s2 = readDnaFile('/Users/bfetler/Downloads/dataset_288_4.txt')
-r1 = filter(rmnull, rx.split(s1))
-r2 = filter(rmnull, rx.split(s2))
-sz1=getsz(r1)
-sz2=getsz(r2)
-
-# print 's1', s1, r1, 'sz', sz1
-# print 's2', s2, r2, 'sz', sz2
-print 'sizes:', sz1, sz2
-
-geneC = GeneGraph(2 * sz2, 'geneC')
-addEdges(geneC, r1)
-addEdges(geneC, r2)
+geneC = processDnaFile('geneC','./data/data_gene1.txt')
 # geneC.printConnections()
-compC = ConnComp2(geneC)  # max recursion depth exceeded
-compC.printSummary()
+compC = ConnComp(geneC)     # dfs with recursion
+# compC = ConnComp2(geneC)    # dfs with no recursion
+# compC.printSummary()
+compC.printConn()
 
-# timing test
-#etime = datetime.datetime.now()
-#print 'end time', etime
-#print 'time delta', etime-dtime
-#print 'long loop'
-#cc = 0
-#for c in [0,1000]:
-#    s1, s2 = readDnaFile('/Users/bfetler/Downloads/dataset_288_4.txt')
-#    cc += 1
-#ltime = datetime.datetime.now()
-#print 'loop time', ltime-etime
-print 'python version', sys.version
+geneD = processDnaFile('geneD','./data/dataset_288_4.txt')
+# geneD.printConnections()  # may be very long
+# compD = ConnComp(geneD)   # max recursion depth exceeded
+compD = ConnComp2(geneD)    # dfs with no recursion
+compD.printSummary()
+# compD.printConn()
