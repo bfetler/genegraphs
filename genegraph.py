@@ -128,15 +128,10 @@ class ConnComp2:    # connected components, non-recursive dfs
                 vct = 0
                 vlist = [v]
                 self.lists.append(vlist[0])
-#                last = vlist[-1]
                 while (vlist != []):
-#                    print 'init processing', vlist, 'count', self.count
                     vlist = self.dfs2(gGraph, vlist)
                     if (vlist != []):
                         vct += 1
-#                        last = vlist[-1]
-#                        # seems to pick middle of loop, why?
-#                self.lists.append(last)
                 self.listct.append(vct)
                 self.count += 1
 
@@ -169,7 +164,7 @@ class ConnComp2:    # connected components, non-recursive dfs
     def printSummary(self):
         print self.name, 'connected components count', self.count, 
         print '; start nodes', self.lists, '; comp sizes', self.listct
-#   it would be nice to graph the connected components
+#       how to graph the connected components?
 
 def processDnaFile(geneName, filename):
     '''process DNA file'''
@@ -290,21 +285,20 @@ compAB = ConnComp(geneAB)
 compAB.printConn()
 
 # Above is a very manual process.  
-# How to read and process a file?
-#   e.g. file 1st line (+1 -3 -6 -5)(+2 -4)
-#        file 2nd line (+1 +2 +3 +4 +5 +6)
-# see processDnaFile()
+# How to read and process a file?  processDnaFile()
+#   e.g. 1st file line (+1 -3 -6 -5)(+2 -4)
+#        2nd file line (+1 +2 +3 +4 +5 +6)
 
 geneC = processDnaFile('geneC','./data/data_gene1.txt')
 geneC.printConnections()
 compC = ConnComp(geneC)     # dfs with recursion
 compC.printConn()
-compC2 = ConnComp2(geneC)   # dfs with no recursion
+compC2 = ConnComp2(geneC)   # dfs without recursion
 compC2.printSummary()
 
 geneD = processDnaFile('geneD','./data/dataset_288_4.txt')
 # geneD.printConnections()  # may be very long
 # compD = ConnComp(geneD)   # max recursion depth exceeded
-compD = ConnComp2(geneD)    # dfs with no recursion
+compD = ConnComp2(geneD)    # dfs without recursion
 compD.printSummary()
 # compD.printConn()
