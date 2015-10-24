@@ -17,6 +17,10 @@ can show how the genome is cut and pasted in the course of
 evolution.
                 --from https://en.wikipedia.org/wiki/Synteny
 
+Ref: Bioinformatics Algorithms Volume 1, P. Compeau and
+P. Pevzner, Ch. 6 "Are There Fragile Regions in the
+Human Genome?", Active Learning Publishers, 2015.  
+
 The basic question is how to map synteny blocks between
 two species.  By connecting the 5' and 3' ends of the gene, 
 we create a circular gene representation for each species.  
@@ -74,7 +78,7 @@ class GeneGraph:
                 print i, '->', b, ',',
         print ''
         
-class ConnComp:    # connected components
+class ConnComp:    # connected components, recursive dfs
     '''connected components of a gene graph'''
     # may exceed max recursion depth
     def __init__(self, gGraph):
@@ -108,7 +112,7 @@ class ConnComp:    # connected components
             print i, ':', a, ',',
         print ''
 
-class ConnComp2:    # connected components, 2nd algorithm
+class ConnComp2:    # connected components, non-recursive dfs
     '''connected components of a gene graph'''
     def __init__(self, gGraph):
         self.count = 0
@@ -118,18 +122,26 @@ class ConnComp2:    # connected components, 2nd algorithm
         self.id = [-1] * sz
         self.size = [0] * sz
         self.lists = []
+        self.listct = []
         for v in range(sz):
             if (not self.marked[v]):
+                vct = 0
                 vlist = [v]
                 self.lists.append(vlist[0])
+#                last = vlist[-1]
                 while (vlist != []):
 #                    print 'init processing', vlist, 'count', self.count
                     vlist = self.dfs2(gGraph, vlist)
-#                self.lists.append(vlist[-1])
+                    if (vlist != []):
+                        vct += 1
+#                        last = vlist[-1]
+#                        # seems to pick middle of loop, why?
+#                self.lists.append(last)
+                self.listct.append(vct)
                 self.count += 1
 
 # how to do dfs() without recursion?  while loop, for loop?
-# dfs2() returns node or nodes?  is this correct?
+# is this correct?
     
     def dfs2(self, gGraph, vlist):
         '''depth first search, non-recursive'''
@@ -155,11 +167,13 @@ class ConnComp2:    # connected components, 2nd algorithm
         print self.name, 'connComp count', self.count
     
     def printSummary(self):
-        print self.name, 'connected components count', self.count, ';', self.lists
+        print self.name, 'connected components count', self.count, 
+        print '; start nodes', self.lists, '; comp sizes', self.listct
+#   it would be nice to graph the connected components
 
 def processDnaFile(geneName, filename):
     '''process DNA file'''
-    # use nested methods
+    # nested methods
     
     rx = re.compile('[()\n]')  # split input file by regex
     
@@ -276,17 +290,17 @@ compAB = ConnComp(geneAB)
 compAB.printConn()
 
 # Above is a very manual process.  
-# How to read and process file?
+# How to read and process a file?
 #   e.g. file 1st line (+1 -3 -6 -5)(+2 -4)
 #        file 2nd line (+1 +2 +3 +4 +5 +6)
 # see processDnaFile()
 
 geneC = processDnaFile('geneC','./data/data_gene1.txt')
-# geneC.printConnections()
+geneC.printConnections()
 compC = ConnComp(geneC)     # dfs with recursion
-# compC = ConnComp2(geneC)    # dfs with no recursion
-# compC.printSummary()
 compC.printConn()
+compC2 = ConnComp2(geneC)   # dfs with no recursion
+compC2.printSummary()
 
 geneD = processDnaFile('geneD','./data/dataset_288_4.txt')
 # geneD.printConnections()  # may be very long
