@@ -19,4 +19,4 @@ evolution.
 
 The exercise here is to make an algorithm to create
 a breakpoint graph comparing two genes.  I used a DiGraph 
-with a DFS variation to identify Connected Components.
+DFS variant to identify connected components.
