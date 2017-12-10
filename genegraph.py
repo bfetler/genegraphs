@@ -220,85 +220,97 @@ def processDnaFile(geneName, filename):
     addEdges(gene, r2)
     return gene
 
+def compGeneA():
+    print 'geneA: one DNA strand, six linear blocks'
+    geneA = GeneGraph(12, 'geneA')
+    # add connections
+    geneA.addEdge(1, 2)  # index+1 mod 12
+    geneA.addEdge(3, 4)
+    geneA.addEdge(5, 6)
+    geneA.addEdge(7, 8)
+    geneA.addEdge(9, 10)
+    geneA.addEdge(11, 0)
+    # standard blocks
+    geneA.addEdge(0, 1)
+    geneA.addEdge(2, 3)
+    geneA.addEdge(4, 5)
+    geneA.addEdge(6, 7)
+    geneA.addEdge(8, 9)
+    geneA.addEdge(10, 11)
+    geneA.printConnections()
+    compA = ConnComp(geneA)
+    compA.printConn()
 
-dtime = datetime.datetime.now()
-print 'python version', sys.version, 'start time', dtime
+def compGeneB():
+    print 'geneB: 2 DNA strands length 4 & 2, construct as one'
+    geneB = GeneGraph(12, 'geneB')
+    # add connections
+    geneB.addEdge(1, 5)
+    geneB.addEdge(4, 11)
+    geneB.addEdge(10, 9)
+    geneB.addEdge(8, 0)
+    geneB.addEdge(3, 7)
+    geneB.addEdge(6, 2)
+    # standard blocks
+    geneB.addEdge(0, 1)
+    geneB.addEdge(2, 3)
+    geneB.addEdge(5, 4)
+    geneB.addEdge(7, 6)
+    geneB.addEdge(9, 8)
+    geneB.addEdge(11, 10)
+    geneB.printConnections()
+    compB = ConnComp(geneB)
+    compB.printConn()
 
-print 'geneA: one DNA strand, six linear blocks'
-geneA = GeneGraph(12, 'geneA')
-# add connections
-geneA.addEdge(1, 2)  # index+1 mod 12
-geneA.addEdge(3, 4)
-geneA.addEdge(5, 6)
-geneA.addEdge(7, 8)
-geneA.addEdge(9, 10)
-geneA.addEdge(11, 0)
-# standard blocks
-geneA.addEdge(0, 1)
-geneA.addEdge(2, 3)
-geneA.addEdge(4, 5)
-geneA.addEdge(6, 7)
-geneA.addEdge(8, 9)
-geneA.addEdge(10, 11)
-geneA.printConnections()
-compA = ConnComp(geneA)
-compA.printConn()
-
-print 'geneB: 2 DNA strands length 4 & 2, construct as one'
-geneB = GeneGraph(12, 'geneB')
-# add connections
-geneB.addEdge(1, 5)
-geneB.addEdge(4, 11)
-geneB.addEdge(10, 9)
-geneB.addEdge(8, 0)
-geneB.addEdge(3, 7)
-geneB.addEdge(6, 2)
-# standard blocks
-geneB.addEdge(0, 1)
-geneB.addEdge(2, 3)
-geneB.addEdge(5, 4)
-geneB.addEdge(7, 6)
-geneB.addEdge(9, 8)
-geneB.addEdge(11, 10)
-geneB.printConnections()
-compB = ConnComp(geneB)
-compB.printConn()
-
-print 'breakpoint graph of geneA, geneB'
-geneAB = GeneGraph(12, 'geneAB')
-# add geneA connections
-geneAB.addEdge(1, 2)
-geneAB.addEdge(3, 4)
-geneAB.addEdge(5, 6)
-geneAB.addEdge(7, 8)
-geneAB.addEdge(9, 10)
-geneAB.addEdge(11, 0)
-# add geneB connections
-geneAB.addEdge(1, 5)
-geneAB.addEdge(4, 11)
-geneAB.addEdge(10, 9)
-geneAB.addEdge(8, 0)
-geneAB.addEdge(3, 7)
-geneAB.addEdge(6, 2)
-geneAB.printConnections()
-compAB = ConnComp(geneAB)
-compAB.printConn()
+def compGeneAB():
+    print 'breakpoint graph of geneA, geneB'
+    geneAB = GeneGraph(12, 'geneAB')
+    # add geneA connections
+    geneAB.addEdge(1, 2)
+    geneAB.addEdge(3, 4)
+    geneAB.addEdge(5, 6)
+    geneAB.addEdge(7, 8)
+    geneAB.addEdge(9, 10)
+    geneAB.addEdge(11, 0)
+    # add geneB connections
+    geneAB.addEdge(1, 5)
+    geneAB.addEdge(4, 11)
+    geneAB.addEdge(10, 9)
+    geneAB.addEdge(8, 0)
+    geneAB.addEdge(3, 7)
+    geneAB.addEdge(6, 2)
+    geneAB.printConnections()
+    compAB = ConnComp(geneAB)
+    compAB.printConn()
 
 # Above is a very manual process.  
 # How to read and process a file?  processDnaFile()
 #   e.g. 1st file line (+1 -3 -6 -5)(+2 -4)
 #        2nd file line (+1 +2 +3 +4 +5 +6)
 
-geneC = processDnaFile('geneC','./data/data_gene1.txt')
-geneC.printConnections()
-compC = ConnComp(geneC)     # dfs with recursion
-compC.printConn()
-compC2 = ConnComp2(geneC)   # dfs without recursion
-compC2.printSummary()
+def compFileGeneC():
+    geneC = processDnaFile('geneC','./data/data_gene1.txt')
+    geneC.printConnections()
+    compC = ConnComp(geneC)     # dfs with recursion
+    compC.printConn()
+    compC2 = ConnComp2(geneC)   # dfs without recursion
+    compC2.printSummary()
 
-geneD = processDnaFile('geneD','./data/dataset_288_4.txt')
-# geneD.printConnections()  # may be very long
-# compD = ConnComp(geneD)   # max recursion depth exceeded
-compD = ConnComp2(geneD)    # dfs without recursion
-compD.printSummary()
-# compD.printConn()
+def compFileGeneD():
+    geneD = processDnaFile('geneD','./data/dataset_288_4.txt')
+    # geneD.printConnections()  # may be very long
+    # compD = ConnComp(geneD)   # max recursion depth exceeded
+    compD = ConnComp2(geneD)    # dfs without recursion
+    compD.printSummary()
+    # compD.printConn()
+
+def main():
+    compGeneA()
+    compGeneB()
+    compGeneAB()
+    compFileGeneC()
+    compFileGeneD()
+
+if __name__ == '__main__':
+    main()
+
